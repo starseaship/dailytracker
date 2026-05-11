@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>打卡本</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Ma+Shan+Zheng&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f5f0e8;
+    --ink: #2c2416;
+    --ink-light: #6b5c42;
+    --ink-faint: #b0a090;
+    --gold: #c9942a;
+    --green: #4a7c59;
+    --rule: #d4c9b4;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #d4c8b0;
+    background-image: repeating-linear-gradient(45deg, transparent, transparent 40px, rgba(0,0,0,0.015) 40px, rgba(0,0,0,0.015) 41px);
+    min-height: 100vh;
+    font-family: 'Noto Serif SC', serif;
+    color: var(--ink);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+  }
+
+  .book {
+    width: 100%;
+    max-width: 480px;
+    background: var(--paper);
+    border-radius: 4px 12px 12px 4px;
+    box-shadow: -6px 0 0 #b8a888, -10px 0 0 #a89870, 0 8px 40px rgba(0,0,0,0.25), inset 0 0 80px rgba(200,180,140,0.15);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .book::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: repeating-linear-gradient(transparent, transparent 31px, var(--rule) 31px, var(--rule) 32px);
+    opacity: 0.5;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .book::after {
+    content: '';
+    position: absolute; left: 0; top: 0; bottom: 0; width: 32px;
+    background: linear-gradient(to right, rgba(0,0,0,0.08), transparent);
+    pointer-events: none; z-index: 1;
+  }
+
+  .header {
+    position: relative; z-index: 2;
+    padding: 32px 32px 20px;
+    border-bottom: 2px solid var(--rule);
+    text-align: center;
+  }
+
+  .header-label { font-family: 'Ma Shan Zheng', cursive; font-size: 11px; letter-spacing: 4px; color: var(--ink-faint); margin-bottom: 6px; }
+
+  .header-title {
+    font-family: 'Ma Shan Zheng', cursive; font-size: 42px; color: var(--ink); line-height: 1;
+    position: relative; display: inline-block;
+  }
+  .header-title::after {
+    content: '习惯记录';
+    position: absolute; bottom: -18px; left: 50%; transform: translateX(-50%);
+    font-size: 11px; font-family: 'Lora', serif; font-style: italic;
+    color: var(--ink-faint); letter-spacing: 2px; white-space: nowrap;
+  }
+
+  .date-badge {
+    display: inline-block; margin-top: 28px; padding: 4px 16px;
+    border: 1px solid var(--rule); border-radius: 20px;
+    font-size: 12px; color: var(--ink-light); font-family: 'Lora', serif; letter-spacing: 1px;
+  }
+
+  #view-home, #view-detail, #view-add { display: none; position: relative; z-index: 2; }
+  #view-home.active, #view-detail.active, #view-add.active { display: block; }
+
+  .section-label {
+    padding: 20px 32px 8px; font-size: 10px; letter-spacing: 3px;
+    color: var(--ink-faint); text-transform: uppercase; font-family: 'Lora', serif;
+  }
+
+  .habit-list { padding: 0 20px 8px; }
+
+  .habit-card {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px; margin-bottom: 6px; border-radius: 6px;
+    cursor: pointer; transition: background 0.15s; border: 1px solid transparent;
+  }
+  .habit-card:hover { background: rgba(180,160,120,0.12); border-color: var(--rule); }
+
+  .habit-icon-wrap {
+    width: 44px; height: 44px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; flex-shrink: 0; border: 1.5px solid;
+  }
+
+  .habit-info { flex: 1; min-width: 0; }
+  .habit-name { font-size: 16px; font-weight: 600; color: var(--ink); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .habit-sub { font-size: 11px; color: var(--ink-faint); font-family: 'Lora', serif; font-style: italic; }
+
+  .streak-dots { display: flex; gap: 3px; margin-top: 4px; }
+  .streak-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--rule); }
+  .streak-dot.filled { background: var(--gold); }
+
+  .card-stamp {
+    width: 36px; height: 36px; border-radius: 50%; border: 2.5px solid;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0; transition: all 0.3s;
+  }
+  .card-stamp.done { border-color: var(--green); color: var(--green); background: rgba(74,124,89,0.08); }
+  .card-stamp.undone { border-color: var(--rule); color: var(--rule); }
+
+  .card-count { flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 1px; }
+  .card-count-num { font-family: 'Ma Shan Zheng', cursive; font-size: 22px; line-height: 1; }
+  .card-count-unit { font-size: 9px; color: var(--ink-faint); font-family: 'Lora', serif; font-style: italic; }
+
+  .add-btn {
+    display: flex; align-items: center; gap: 10px;
+    margin: 12px 20px 28px; padding: 12px 16px;
+    border: 1.5px dashed var(--rule); border-radius: 6px;
+    background: none; cursor: pointer; color: var(--ink-faint);
+    font-family: 'Noto Serif SC', serif; font-size: 14px;
+    width: calc(100% - 40px); transition: all 0.15s;
+  }
+  .add-btn:hover { border-color: var(--gold); color: var(--gold); background: rgba(201,148,42,0.05); }
+  .add-btn-icon { width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid currentColor; display: flex; align-items: center; justify-content: center; font-size: 18px; line-height: 1; }
+
+  .back-btn {
+    display: flex; align-items: center; gap: 8px; padding: 16px 32px 0;
+    background: none; border: none; cursor: pointer;
+    font-family: 'Lora', serif; font-style: italic; font-size: 13px;
+    color: var(--ink-light); transition: color 0.15s;
+  }
+  .back-btn:hover { color: var(--ink); }
+
+  .detail-hero { text-align: center; padding: 24px 32px 20px; border-bottom: 1px solid var(--rule); }
+  .detail-emoji { font-size: 52px; display: block; margin-bottom: 10px; }
+  .detail-name { font-size: 26px; font-weight: 700; margin-bottom: 4px; }
+  .detail-desc { font-size: 13px; color: var(--ink-light); font-family: 'Lora', serif; font-style: italic; }
+
+  /* single mode */
+  .checkin-area { display: flex; flex-direction: column; align-items: center; padding: 28px 32px 20px; gap: 12px; }
+  .checkin-btn {
+    width: 110px; height: 110px; border-radius: 50%; border: 3px solid; background: none; cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+    font-family: 'Ma Shan Zheng', cursive; font-size: 20px;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative; overflow: hidden;
+  }
+  .checkin-btn::before { content: ''; position: absolute; inset: 0; border-radius: 50%; background: currentColor; opacity: 0; transition: opacity 0.2s; }
+  .checkin-btn:hover::before { opacity: 0.06; }
+  .checkin-btn.undone { border-color: var(--ink-light); color: var(--ink-light); }
+  .checkin-btn.done { border-color: var(--green); color: var(--green); box-shadow: 0 0 0 6px rgba(74,124,89,0.12); animation: stamp-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  @keyframes stamp-in { 0% { transform: scale(1.3) rotate(-8deg); opacity: 0.5; } 100% { transform: scale(1) rotate(0); opacity: 1; } }
+  .checkin-btn-icon { font-size: 32px; line-height: 1; }
+  .checkin-btn-text { font-size: 15px; }
+  .checkin-status { font-size: 13px; color: var(--ink-faint); font-family: 'Lora', serif; font-style: italic; }
+
+  /* count mode */
+  .count-area { display: flex; flex-direction: column; align-items: center; padding: 28px 32px 20px; gap: 18px; }
+
+  .count-display { display: flex; align-items: center; gap: 28px; }
+
+  .count-ctrl-btn {
+    width: 56px; height: 56px; border-radius: 50%;
+    border: 2px solid var(--rule); background: none;
+    font-size: 28px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink-light); transition: all 0.2s;
+    font-family: 'Lora', serif; line-height: 1;
+    user-select: none;
+  }
+  .count-ctrl-btn:hover { border-color: var(--gold); color: var(--gold); background: rgba(201,148,42,0.06); }
+  .count-ctrl-btn:active { transform: scale(0.9); }
+  .count-ctrl-btn.minus:hover { border-color: #c05050; color: #c05050; background: rgba(192,80,80,0.06); }
+
+  .count-num-wrap { display: flex; flex-direction: column; align-items: center; min-width: 90px; }
+
+  .count-num {
+    font-family: 'Ma Shan Zheng', cursive; font-size: 68px; line-height: 1;
+    transition: transform 0.15s cubic-bezier(0.34,1.56,0.64,1), color 0.3s;
+  }
+  .count-num.bump { transform: scale(1.25); }
+
+  .count-goal-label { font-size: 11px; color: var(--ink-faint); font-family: 'Lora', serif; font-style: italic; margin-top: 2px; }
+
+  .goal-bar-wrap { width: 180px; }
+  .goal-bar-track { height: 6px; background: var(--rule); border-radius: 3px; overflow: hidden; margin-bottom: 5px; }
+  .goal-bar-fill { height: 100%; border-radius: 3px; transition: width 0.3s ease, background 0.3s; }
+  .goal-bar-text { font-size: 11px; color: var(--ink-faint); font-family: 'Lora', serif; font-style: italic; text-align: center; display: block; }
+
+  .stats-row { display: flex; padding: 0 32px; margin-bottom: 24px; }
+  .stat-item { flex: 1; text-align: center; padding: 12px 0; border: 1px solid var(--rule); }
+  .stat-item:first-child { border-radius: 6px 0 0 6px; }
+  .stat-item:last-child { border-radius: 0 6px 6px 0; }
+  .stat-num { font-family: 'Ma Shan Zheng', cursive; font-size: 26px; color: var(--ink); display: block; }
+  .stat-label { font-size: 10px; color: var(--ink-faint); font-family: 'Lora', serif; font-style: italic; }
+
+  .calendar-section { padding: 0 32px 32px; }
+  .calendar-title { font-size: 10px; letter-spacing: 3px; color: var(--ink-faint); text-transform: uppercase; font-family: 'Lora', serif; margin-bottom: 14px; }
+  .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+
+  .cal-day {
+    aspect-ratio: 1; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-family: 'Lora', serif; color: var(--ink-faint);
+    position: relative; transition: all 0.2s;
+  }
+  .cal-day.checked { background: var(--green); color: white; }
+  .cal-day.partial { background: rgba(74,124,89,0.28); color: var(--green); }
+  .cal-day.today-dot { border: 1.5px solid var(--gold); color: var(--gold); }
+  .cal-day.today-dot.checked { border-color: var(--green); color: white; }
+  .cal-day.today-dot.partial { border-color: var(--gold); }
+
+  /* little count badge on calendar for count mode */
+  .cal-cnt {
+    position: absolute; top: -2px; right: -2px;
+    background: var(--gold); color: white;
+    font-size: 7px; width: 13px; height: 13px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: sans-serif; font-weight: bold;
+  }
+
+  .divider { height: 1px; background: var(--rule); margin: 0 32px; }
+
+  .delete-btn {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    margin: 0 32px 32px; padding: 10px; width: calc(100% - 64px);
+    border: 1px solid #e8c0bc; border-radius: 6px;
+    background: none; color: #c05050;
+    font-family: 'Noto Serif SC', serif; font-size: 13px;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .delete-btn:hover { background: rgba(192,80,80,0.06); }
+
+  /* add form */
+  .add-form { padding: 24px 32px 32px; }
+  .form-title { font-family: 'Ma Shan Zheng', cursive; font-size: 22px; margin-bottom: 24px; color: var(--ink); }
+  .form-group { margin-bottom: 20px; }
+  .form-label { display: block; font-size: 11px; letter-spacing: 2px; color: var(--ink-faint); text-transform: uppercase; font-family: 'Lora', serif; margin-bottom: 8px; }
+  .form-input {
+    width: 100%; padding: 10px 14px;
+    border: 1.5px solid var(--rule); border-radius: 6px;
+    background: rgba(255,255,255,0.5);
+    font-family: 'Noto Serif SC', serif; font-size: 15px; color: var(--ink);
+    outline: none; transition: border-color 0.15s;
+  }
+  .form-input:focus { border-color: var(--gold); }
+
+  .mode-toggle { display: flex; gap: 8px; }
+  .mode-opt {
+    flex: 1; padding: 10px 8px;
+    border: 1.5px solid var(--rule); border-radius: 6px;
+    background: none; cursor: pointer;
+    font-family: 'Noto Serif SC', serif; font-size: 13px; color: var(--ink-light);
+    text-align: center; transition: all 0.15s;
+  }
+  .mode-opt.selected { border-color: var(--gold); background: rgba(201,148,42,0.1); color: var(--ink); }
+  .mode-opt-icon { font-size: 20px; display: block; margin-bottom: 4px; }
+
+  .goal-row { display: flex; gap: 10px; align-items: center; }
+  .goal-row .form-input { flex: 1; }
+  .goal-unit { font-size: 14px; color: var(--ink-faint); white-space: nowrap; }
+
+  .emoji-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; }
+  .emoji-opt {
+    aspect-ratio: 1; border-radius: 8px; border: 1.5px solid var(--rule);
+    background: none; font-size: 20px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; transition: all 0.15s;
+  }
+  .emoji-opt:hover, .emoji-opt.selected { border-color: var(--gold); background: rgba(201,148,42,0.1); transform: scale(1.1); }
+
+  .color-grid { display: flex; gap: 8px; flex-wrap: wrap; }
+  .color-opt { width: 32px; height: 32px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; transition: all 0.15s; position: relative; }
+  .color-opt.selected::after { content: '✓'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; }
+  .color-opt.selected { border-color: var(--ink); transform: scale(1.1); }
+
+  .save-btn {
+    width: 100%; padding: 14px; background: var(--ink); color: var(--paper);
+    border: none; border-radius: 6px; font-family: 'Ma Shan Zheng', cursive; font-size: 18px;
+    cursor: pointer; margin-top: 8px; transition: all 0.15s; letter-spacing: 2px;
+  }
+  .save-btn:hover { background: var(--ink-light); }
+
+  .cancel-link { display: block; text-align: center; margin-top: 14px; font-size: 12px; color: var(--ink-faint); font-family: 'Lora', serif; font-style: italic; cursor: pointer; }
+  .cancel-link:hover { color: var(--ink-light); }
+
+  .empty-state { text-align: center; padding: 40px 32px; color: var(--ink-faint); }
+  .empty-state-icon { font-size: 40px; margin-bottom: 12px; display: block; }
+  .empty-state-text { font-family: 'Lora', serif; font-style: italic; font-size: 14px; line-height: 1.7; }
+
+  .scroll-area { max-height: 60vh; overflow-y: auto; }
+  .scroll-area::-webkit-scrollbar { width: 4px; }
+  .scroll-area::-webkit-scrollbar-track { background: transparent; }
+  .scroll-area::-webkit-scrollbar-thumb { background: var(--rule); border-radius: 2px; }
+
+  .hidden { display: none !important; }
+
+  .toast {
+    position: fixed; bottom: 30px; left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--ink); color: var(--paper);
+    padding: 10px 24px; border-radius: 40px;
+    font-family: 'Noto Serif SC', serif; font-size: 14px;
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 999; white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="book">
+  <div class="header">
+    <div class="header-label">Daily</div>
+    <div class="header-title">打卡本</div>
+    <div class="date-badge" id="date-badge"></div>
+  </div>
+
+  <!-- HOME -->
+  <div id="view-home" class="active">
+    <div class="section-label">我的习惯</div>
+    <div class="scroll-area">
+      <div class="habit-list" id="habit-list"></div>
+    </div>
+    <button class="add-btn" onclick="showAdd()">
+      <span class="add-btn-icon">+</span>
+      添加新的打卡项目
+    </button>
+  </div>
+
+  <!-- DETAIL -->
+  <div id="view-detail">
+    <button class="back-btn" onclick="showHome()">← 返回</button>
+    <div class="detail-hero">
+      <span class="detail-emoji" id="d-emoji"></span>
+      <div class="detail-name" id="d-name"></div>
+      <div class="detail-desc" id="d-desc"></div>
+    </div>
+
+    <!-- single -->
+    <div class="checkin-area" id="single-area">
+      <button class="checkin-btn" id="checkin-btn" onclick="toggleCheckin()">
+        <span class="checkin-btn-icon" id="checkin-icon"></span>
+        <span class="checkin-btn-text" id="checkin-text"></span>
+      </button>
+      <div class="checkin-status" id="checkin-status"></div>
+    </div>
+
+    <!-- count -->
+    <div class="count-area hidden" id="count-area">
+      <div class="count-display">
+        <button class="count-ctrl-btn minus" onclick="adjustCount(-1)">−</button>
+        <div class="count-num-wrap">
+          <div class="count-num" id="count-num">0</div>
+          <div class="count-goal-label" id="count-goal-label"></div>
+        </div>
+        <button class="count-ctrl-btn" onclick="adjustCount(1)">+</button>
+      </div>
+      <div class="goal-bar-wrap" id="goal-bar-wrap">
+        <div class="goal-bar-track">
+          <div class="goal-bar-fill" id="goal-bar-fill"></div>
+        </div>
+        <span class="goal-bar-text" id="goal-bar-text"></span>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-item">
+        <span class="stat-num" id="stat-streak">0</span>
+        <span class="stat-label">连续天数</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num" id="stat-total">0</span>
+        <span class="stat-label" id="stat-total-label">累计打卡</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num" id="stat-rate">0%</span>
+        <span class="stat-label">本月完成率</span>
+      </div>
+    </div>
+
+    <div class="calendar-section">
+      <div class="calendar-title">本月记录</div>
+      <div class="calendar-grid" id="calendar-grid"></div>
+    </div>
+    <div class="divider"></div>
+    <button class="delete-btn" onclick="deleteHabit()">✕ 删除这个打卡项目</button>
+  </div>
+
+  <!-- ADD -->
+  <div id="view-add">
+    <div class="add-form">
+      <div class="form-title">新建打卡项目</div>
+      <div class="form-group">
+        <label class="form-label">名称</label>
+        <input class="form-input" id="input-name" type="text" placeholder="例如：早起、喝水、运动…" maxlength="20">
+      </div>
+      <div class="form-group">
+        <label class="form-label">备注（可选）</label>
+        <input class="form-input" id="input-desc" type="text" placeholder="简短说明" maxlength="30">
+      </div>
+      <div class="form-group">
+        <label class="form-label">打卡类型</label>
+        <div class="mode-toggle">
+          <button class="mode-opt selected" id="mode-single" onclick="selectMode('single')">
+            <span class="mode-opt-icon">✓</span>
+            单次打卡
+          </button>
+          <button class="mode-opt" id="mode-count" onclick="selectMode('count')">
+            <span class="mode-opt-icon">🔢</span>
+            次数打卡
+          </button>
+        </div>
+      </div>
+      <div class="form-group hidden" id="goal-group">
+        <label class="form-label">每日目标次数（可选）</label>
+        <div class="goal-row">
+          <input class="form-input" id="input-goal" type="number" min="1" max="999" placeholder="例如：8">
+          <span class="goal-unit">次 / 天</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">选择图标</label>
+        <div class="emoji-grid" id="emoji-grid"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">主题色</label>
+        <div class="color-grid" id="color-grid"></div>
+      </div>
+      <button class="save-btn" onclick="saveHabit()">记 录 它</button>
+      <span class="cancel-link" onclick="showHome()">取消</span>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const EMOJIS = ['🌅','📚','💧','🏃','🧘','✍️','🎵','🌱','💪','🥗','😴','🧹','📝','🎨','🌙','☕','🚶','🍎','💊','🧴','🌸','🔥','⭐','🎯','🦷','🧠','🏊','🎸'];
+const COLORS = ['#4a7c59','#c9942a','#5b7fa6','#9b6b9e','#c0392b','#2c8c7c','#8b6f47','#6b7c3d'];
+
+let habits = JSON.parse(localStorage.getItem('habits') || '[]');
+let currentHabitId = null;
+let selectedEmoji = EMOJIS[0];
+let selectedColor = COLORS[0];
+let selectedMode = 'single';
+
+// migrate old data
+habits = habits.map(h => {
+  if (!h.mode) h.mode = 'single';
+  if (!h.records) h.records = [];
+  if (!h.countRecords) h.countRecords = {};
+  return h;
+});
+
+function todayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function save() { localStorage.setItem('habits', JSON.stringify(habits)); }
+
+function showView(v) {
+  ['view-home','view-detail','view-add'].forEach(id => document.getElementById(id).classList.remove('active'));
+  document.getElementById(v).classList.add('active');
+}
+
+function showHome() { renderHome(); showView('view-home'); }
+
+function showAdd() {
+  document.getElementById('input-name').value = '';
+  document.getElementById('input-desc').value = '';
+  document.getElementById('input-goal').value = '';
+  selectedEmoji = EMOJIS[0]; selectedColor = COLORS[0]; selectedMode = 'single';
+  document.getElementById('mode-single').classList.add('selected');
+  document.getElementById('mode-count').classList.remove('selected');
+  document.getElementById('goal-group').classList.add('hidden');
+  renderEmojiGrid(); renderColorGrid();
+  showView('view-add');
+}
+
+function showDetail(id) { currentHabitId = id; renderDetail(); showView('view-detail'); }
+
+/* HOME */
+function renderHome() {
+  const list = document.getElementById('habit-list');
+  if (!habits.length) {
+    list.innerHTML = `<div class="empty-state"><span class="empty-state-icon">📓</span><div class="empty-state-text">还没有打卡项目<br>点击下方按钮开始记录你的习惯吧</div></div>`;
+    return;
+  }
+  list.innerHTML = habits.map(h => {
+    const today = todayStr();
+    const streak = calcStreak(h);
+    const dots = getLast7(h).map(v => `<div class="streak-dot${v?' filled':''}"></div>`).join('');
+
+    if (h.mode === 'count') {
+      const cnt = (h.countRecords||{})[today] || 0;
+      const goal = h.goal || 0;
+      const color = cnt > 0 ? h.color : 'var(--ink-faint)';
+      return `
+      <div class="habit-card" onclick="showDetail('${h.id}')">
+        <div class="habit-icon-wrap" style="background:${h.color}18;border-color:${h.color}55">${h.emoji}</div>
+        <div class="habit-info">
+          <div class="habit-name">${h.name}</div>
+          <div class="streak-dots">${dots}</div>
+          <div class="habit-sub">${streak>0?`连续 ${streak} 天`:'今天还没记录'}</div>
+        </div>
+        <div class="card-count">
+          <div class="card-count-num" style="color:${color}">${cnt}</div>
+          <div class="card-count-unit">${goal?`目标${goal}次`:'次'}</div>
+        </div>
+      </div>`;
+    } else {
+      const done = (h.records||[]).includes(today);
+      return `
+      <div class="habit-card" onclick="showDetail('${h.id}')">
+        <div class="habit-icon-wrap" style="background:${h.color}18;border-color:${h.color}55">${h.emoji}</div>
+        <div class="habit-info">
+          <div class="habit-name">${h.name}</div>
+          <div class="streak-dots">${dots}</div>
+          <div class="habit-sub">${streak>0?`连续 ${streak} 天`:'今天还没打卡'}</div>
+        </div>
+        <div class="card-stamp ${done?'done':'undone'}">${done?'✓':'○'}</div>
+      </div>`;
+    }
+  }).join('');
+}
+
+/* DETAIL */
+function renderDetail() {
+  const h = habits.find(x => x.id === currentHabitId);
+  if (!h) return;
+  const today = todayStr();
+
+  document.getElementById('d-emoji').textContent = h.emoji;
+  document.getElementById('d-name').textContent = h.name;
+  document.getElementById('d-desc').textContent = h.desc || '每天坚持，成就更好的自己';
+
+  const sa = document.getElementById('single-area');
+  const ca = document.getElementById('count-area');
+
+  if (h.mode === 'count') {
+    sa.classList.add('hidden'); ca.classList.remove('hidden');
+    renderCountArea(h);
+    document.getElementById('stat-total-label').textContent = '累计次数';
+    document.getElementById('stat-total').textContent = calcTotalCount(h);
+  } else {
+    ca.classList.add('hidden'); sa.classList.remove('hidden');
+    const done = (h.records||[]).includes(today);
+    const btn = document.getElementById('checkin-btn');
+    document.getElementById('checkin-icon').textContent = done ? '✓' : h.emoji;
+    document.getElementById('checkin-text').textContent = done ? '已完成' : '打 卡';
+    btn.className = 'checkin-btn ' + (done ? 'done' : 'undone');
+    btn.style.borderColor = done ? '#4a7c59' : h.color;
+    btn.style.color = done ? '#4a7c59' : h.color;
+    document.getElementById('checkin-status').textContent = done ? '今天已打卡 ✓' : '点击完成今日打卡';
+    document.getElementById('stat-total-label').textContent = '累计打卡';
+    document.getElementById('stat-total').textContent = (h.records||[]).length;
+  }
+
+  document.getElementById('stat-streak').textContent = calcStreak(h);
+  document.getElementById('stat-rate').textContent = calcMonthRate(h) + '%';
+  renderCalendar(h);
+}
+
+function renderCountArea(h) {
+  const today = todayStr();
+  const cnt = (h.countRecords||{})[today] || 0;
+  const goal = h.goal || 0;
+
+  const numEl = document.getElementById('count-num');
+  numEl.textContent = cnt;
+  numEl.style.color = cnt > 0 ? h.color : 'var(--ink-faint)';
+  document.getElementById('count-goal-label').textContent = goal ? `目标 ${goal} 次` : '次';
+
+  const barWrap = document.getElementById('goal-bar-wrap');
+  if (goal) {
+    barWrap.classList.remove('hidden');
+    const pct = Math.min(cnt / goal * 100, 100);
+    const fill = document.getElementById('goal-bar-fill');
+    fill.style.width = pct + '%';
+    fill.style.background = pct >= 100 ? '#4a7c59' : h.color;
+    document.getElementById('goal-bar-text').textContent = pct >= 100 ? '🎉 已达成今日目标！' : `还差 ${goal - cnt} 次`;
+  } else {
+    barWrap.classList.add('hidden');
+  }
+}
+
+function adjustCount(delta) {
+  const h = habits.find(x => x.id === currentHabitId);
+  if (!h || h.mode !== 'count') return;
+  const today = todayStr();
+  if (!h.countRecords) h.countRecords = {};
+  const cur = h.countRecords[today] || 0;
+  const next = Math.max(0, cur + delta);
+  if (next === 0) delete h.countRecords[today];
+  else h.countRecords[today] = next;
+  save();
+
+  if (delta > 0) {
+    const goal = h.goal || 0;
+    if (goal && next === goal) showToast(h.emoji + ' 达成今日目标！🎉');
+    else showToast(`+1  今日已记录 ${next} 次`);
+    const numEl = document.getElementById('count-num');
+    numEl.classList.remove('bump');
+    void numEl.offsetWidth;
+    numEl.classList.add('bump');
+    setTimeout(() => numEl.classList.remove('bump'), 200);
+  } else {
+    showToast(`已减为 ${next} 次`);
+  }
+
+  renderCountArea(h);
+  document.getElementById('stat-total').textContent = calcTotalCount(h);
+  renderCalendar(h);
+  renderHome();
+}
+
+function renderCalendar(h) {
+  const grid = document.getElementById('calendar-grid');
+  const now = new Date();
+  const year = now.getFullYear(), month = now.getMonth();
+  const today = todayStr();
+  const days = new Date(year, month+1, 0).getDate();
+  const firstDay = new Date(year, month, 1).getDay();
+  const goal = h.goal || 0;
+
+  let html = '';
+  ['日','一','二','三','四','五','六'].forEach(d => {
+    html += `<div class="cal-day" style="font-size:9px;color:var(--ink-faint)">${d}</div>`;
+  });
+  for (let i=0; i<firstDay; i++) html += '<div></div>';
+
+  for (let d=1; d<=days; d++) {
+    const ds = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isToday = ds === today;
+    let cls = 'cal-day';
+    let badge = '';
+
+    if (h.mode === 'count') {
+      const cnt = (h.countRecords||{})[ds] || 0;
+      if (cnt > 0) {
+        cls += goal ? (cnt >= goal ? ' checked' : ' partial') : ' checked';
+        if (cnt > 1) badge = `<span class="cal-cnt">${cnt}</span>`;
+      }
+    } else {
+      if ((h.records||[]).includes(ds)) cls += ' checked';
+    }
+    if (isToday) cls += ' today-dot';
+    html += `<div class="${cls}">${d}${badge}</div>`;
+  }
+  grid.innerHTML = html;
+}
+
+/* SINGLE TOGGLE */
+function toggleCheckin() {
+  const h = habits.find(x => x.id === currentHabitId);
+  if (!h) return;
+  const today = todayStr();
+  if (!h.records) h.records = [];
+  if (h.records.includes(today)) {
+    h.records = h.records.filter(d => d !== today);
+    showToast('已取消今日打卡');
+  } else {
+    h.records.push(today);
+    showToast(h.emoji + ' 打卡成功！继续加油～');
+  }
+  save(); renderDetail(); renderHome();
+}
+
+/* SAVE */
+function saveHabit() {
+  const name = document.getElementById('input-name').value.trim();
+  if (!name) { showToast('请输入名称 ✏️'); return; }
+  const goal = parseInt(document.getElementById('input-goal').value) || 0;
+  habits.push({
+    id: Date.now().toString(),
+    name,
+    desc: document.getElementById('input-desc').value.trim(),
+    emoji: selectedEmoji,
+    color: selectedColor,
+    mode: selectedMode,
+    goal: selectedMode === 'count' ? goal : 0,
+    records: [],
+    countRecords: {},
+    createdAt: todayStr()
+  });
+  save();
+  showToast('已添加：' + name + ' 🎉');
+  showHome();
+}
+
+function deleteHabit() {
+  const h = habits.find(x => x.id === currentHabitId);
+  if (!h) return;
+  if (!confirm(`确定要删除「${h.name}」吗？所有记录将清空。`)) return;
+  habits = habits.filter(x => x.id !== currentHabitId);
+  save(); showToast('已删除'); showHome();
+}
+
+/* FORM */
+function selectMode(m) {
+  selectedMode = m;
+  document.getElementById('mode-single').classList.toggle('selected', m === 'single');
+  document.getElementById('mode-count').classList.toggle('selected', m === 'count');
+  document.getElementById('goal-group').classList.toggle('hidden', m !== 'count');
+}
+
+function renderEmojiGrid() {
+  document.getElementById('emoji-grid').innerHTML = EMOJIS.map(e =>
+    `<button class="emoji-opt${e===selectedEmoji?' selected':''}" onclick="selectEmoji('${e}')">${e}</button>`
+  ).join('');
+}
+function renderColorGrid() {
+  document.getElementById('color-grid').innerHTML = COLORS.map(c =>
+    `<div class="color-opt${c===selectedColor?' selected':''}" style="background:${c}" onclick="selectColor('${c}')"></div>`
+  ).join('');
+}
+function selectEmoji(e) { selectedEmoji = e; renderEmojiGrid(); }
+function selectColor(c) { selectedColor = c; renderColorGrid(); }
+
+/* STATS */
+function calcStreak(h) {
+  let streak = 0, d = new Date();
+  while (true) {
+    const s = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    const hit = h.mode === 'count' ? ((h.countRecords||{})[s]||0) > 0 : (h.records||[]).includes(s);
+    if (hit) { streak++; d.setDate(d.getDate()-1); } else break;
+  }
+  return streak;
+}
+
+function getLast7(h) {
+  return Array.from({length:7}, (_,i) => {
+    const d = new Date(); d.setDate(d.getDate()-(6-i));
+    const s = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    return h.mode === 'count' ? ((h.countRecords||{})[s]||0)>0 : (h.records||[]).includes(s);
+  });
+}
+
+function calcMonthRate(h) {
+  const now = new Date();
+  const year = now.getFullYear(), month = now.getMonth(), today = now.getDate();
+  const goal = h.goal || 1;
+  let count = 0;
+  for (let d=1; d<=today; d++) {
+    const s = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const hit = h.mode === 'count' ? ((h.countRecords||{})[s]||0) >= goal : (h.records||[]).includes(s);
+    if (hit) count++;
+  }
+  return Math.round(count/today*100);
+}
+
+function calcTotalCount(h) {
+  return Object.values(h.countRecords||{}).reduce((a,b)=>a+b,0);
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+/* INIT */
+const _n = new Date();
+const _mo = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
+const _dy = ['日','一','二','三','四','五','六'];
+document.getElementById('date-badge').textContent = `${_n.getFullYear()} · ${_mo[_n.getMonth()]} · 周${_dy[_n.getDay()]}`;
+renderEmojiGrid(); renderColorGrid(); showHome();
+</script>
+</body>
+</html>
