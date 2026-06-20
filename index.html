@@ -5,23 +5,222 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>打卡本</title>
 <meta name="application-name" content="打卡本">
-<meta name="theme-color" content="#f5f0e8">
+<meta name="theme-color" content="#fff6f8">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="打卡本">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<link rel="manifest" href="/dailytracker/manifest.webmanifest?v=20260621-2">
-<link rel="icon" type="image/png" href="/dailytracker/apple-touch-icon.png?v=20260621-2">
-<link rel="shortcut icon" type="image/png" href="/dailytracker/apple-touch-icon.png?v=20260621-2">
-<link rel="apple-touch-icon" href="/dailytracker/apple-touch-icon.png?v=20260621-2">
-<link rel="apple-touch-icon" sizes="180x180" href="/dailytracker/apple-touch-icon.png?v=20260621-2">
-<link rel="apple-touch-icon-precomposed" sizes="180x180" href="/dailytracker/apple-touch-icon-precomposed.png?v=20260621-2">
+<link rel="manifest" href="/dailytracker/manifest.webmanifest?v=20260621-3">
+<link rel="icon" type="image/png" href="/dailytracker/apple-touch-icon.png?v=20260621-3">
+<link rel="shortcut icon" type="image/png" href="/dailytracker/apple-touch-icon.png?v=20260621-3">
+<link rel="apple-touch-icon" href="/dailytracker/apple-touch-icon.png?v=20260621-3">
+<link rel="apple-touch-icon" sizes="180x180" href="/dailytracker/apple-touch-icon.png?v=20260621-3">
+<link rel="apple-touch-icon-precomposed" sizes="180x180" href="/dailytracker/apple-touch-icon-precomposed.png?v=20260621-3">
 <style>
-html,body{width:100%;height:100%;margin:0;padding:0;background:#d4c8b0;overflow:hidden}#appFrame{position:fixed;inset:0;width:100%;height:100%;border:0;background:#d4c8b0}noscript{display:block;padding:24px;font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;color:#2c2416;background:#f5f0e8}
+html,body{width:100%;height:100%;margin:0;padding:0;background:linear-gradient(155deg,#ffe1ec 0%,#fff6db 48%,#eee2ff 100%);overflow:hidden}#appFrame{position:fixed;inset:0;width:100%;height:100%;border:0;background:transparent}noscript{display:block;padding:24px;font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;color:#5a3f4f;background:#fff6f8}
 </style>
 </head>
 <body>
-<iframe id="appFrame" src="./app.html?v=20260621-2" title="打卡本"></iframe>
+<iframe id="appFrame" src="./app.html?v=20260621-cute1" title="打卡本"></iframe>
 <noscript>需要启用 JavaScript 才能使用打卡本。</noscript>
+<script>
+const cuteCss = `
+:root{
+  --paper:#fff7fa !important;
+  --ink:#5a3f4f !important;
+  --ink-light:#8b6f80 !important;
+  --ink-faint:#c9aebd !important;
+  --gold:#e7b84e !important;
+  --green:#8fcfb3 !important;
+  --rule:#f2d5df !important;
+}
+html,body{
+  background:
+    radial-gradient(circle at 16% 12%,rgba(255,255,255,.72) 0 8%,transparent 18%),
+    radial-gradient(circle at 86% 18%,rgba(255,223,239,.68) 0 7%,transparent 18%),
+    linear-gradient(155deg,#ffe1ec 0%,#fff6db 48%,#eee2ff 100%) !important;
+}
+body{
+  color:var(--ink) !important;
+  padding:28px 16px !important;
+}
+.book{
+  max-width:500px !important;
+  background:rgba(255,247,250,.94) !important;
+  border:1px solid rgba(255,255,255,.82) !important;
+  border-radius:30px !important;
+  box-shadow:0 20px 56px rgba(177,117,145,.23),0 4px 16px rgba(122,88,136,.10),inset 0 0 48px rgba(255,255,255,.58) !important;
+  overflow:hidden !important;
+}
+.book:before{
+  background-image:radial-gradient(circle,rgba(231,184,78,.18) 1.2px,transparent 1.8px),radial-gradient(circle,rgba(212,180,244,.15) 1px,transparent 1.7px) !important;
+  background-size:24px 24px,34px 34px !important;
+  background-position:0 0,12px 12px !important;
+  opacity:.7 !important;
+}
+.book:after{display:none !important;}
+.header{
+  padding:30px 30px 22px !important;
+  border-bottom:1px solid rgba(242,213,223,.9) !important;
+  background:linear-gradient(180deg,rgba(255,255,255,.38),rgba(255,255,255,0)) !important;
+}
+.header-label{color:#d0a5ba !important;letter-spacing:5px !important;}
+.header-title{color:#6a4560 !important;text-shadow:0 2px 0 rgba(255,255,255,.8) !important;}
+.header-title:after{color:#caa7b8 !important;}
+.date-badge{
+  border:1px solid rgba(231,184,78,.42) !important;
+  background:rgba(255,255,255,.45) !important;
+  color:#9a7388 !important;
+  box-shadow:0 4px 12px rgba(177,117,145,.08) !important;
+}
+.section-label,.calendar-title,.form-label{color:#c79aad !important;}
+.scroll-area::-webkit-scrollbar{width:6px;}
+.scroll-area::-webkit-scrollbar-thumb{background:#edc8d8;border-radius:999px;}
+.habit-list{padding:2px 20px 10px !important;}
+.habit-card{
+  margin-bottom:10px !important;
+  padding:14px !important;
+  border-radius:20px !important;
+  border:1px solid rgba(242,213,223,.86) !important;
+  background:rgba(255,255,255,.48) !important;
+  box-shadow:0 8px 20px rgba(177,117,145,.08) !important;
+}
+.habit-card:hover,.habit-card:active{
+  background:rgba(255,240,247,.76) !important;
+  border-color:#ebb9cb !important;
+  transform:translateY(-1px) !important;
+}
+.habit-icon-wrap{
+  background:rgba(255,255,255,.65) !important;
+  border-width:2px !important;
+  box-shadow:inset 0 0 0 3px rgba(255,255,255,.45),0 5px 12px rgba(177,117,145,.10) !important;
+}
+.habit-name,.detail-name,.form-title{color:#5a3f4f !important;}
+.habit-sub,.detail-desc,.selected-date-line,.checkin-status,.single-adjust-note,.goal-bar-text,.count-goal-label,.cancel-link,.empty-state-text{color:#a98999 !important;}
+.streak-dot{background:#eed4df !important;}
+.streak-dot.filled{background:#e7b84e !important;box-shadow:0 0 0 2px rgba(231,184,78,.14) !important;}
+.card-stamp,.card-count-num{font-weight:700 !important;}
+.card-stamp.done{
+  border-color:#8fcfb3 !important;
+  color:#5da686 !important;
+  background:rgba(143,207,179,.18) !important;
+}
+.card-stamp.undone{border-color:#edc8d8 !important;color:#cfadc0 !important;background:rgba(255,255,255,.34) !important;}
+.add-btn,.backup-btn{
+  border-radius:18px !important;
+  border-color:#edc8d8 !important;
+  color:#9a7388 !important;
+  background:rgba(255,255,255,.46) !important;
+  box-shadow:0 8px 18px rgba(177,117,145,.08) !important;
+}
+.add-btn:hover,.backup-btn:hover{
+  border-color:#e7b84e !important;
+  color:#b47d98 !important;
+  background:rgba(255,246,219,.62) !important;
+}
+.add-btn-icon{background:#fff7fa !important;}
+.back-btn{color:#9a7388 !important;}
+.detail-hero{border-bottom:1px solid #f2d5df !important;background:rgba(255,255,255,.25) !important;}
+.detail-emoji{filter:drop-shadow(0 6px 8px rgba(177,117,145,.12)) !important;}
+.checkin-btn{
+  background:rgba(255,255,255,.54) !important;
+  box-shadow:0 12px 28px rgba(177,117,145,.14),inset 0 0 0 5px rgba(255,255,255,.45) !important;
+}
+.checkin-btn.done{
+  border-color:#8fcfb3 !important;
+  color:#5da686 !important;
+  background:rgba(143,207,179,.20) !important;
+}
+.count-ctrl-btn,.month-nav{
+  border-color:#edc8d8 !important;
+  background:rgba(255,255,255,.52) !important;
+  color:#9a7388 !important;
+  box-shadow:0 6px 14px rgba(177,117,145,.08) !important;
+}
+.count-ctrl-btn:hover,.month-nav:hover{
+  border-color:#e7b84e !important;
+  color:#b47d98 !important;
+  background:#fff7fa !important;
+}
+.count-ctrl-btn.minus:hover{border-color:#f0a5ac !important;color:#cf6f79 !important;background:#fff1f2 !important;}
+.goal-bar-track{background:#f0d5df !important;}
+.goal-bar-fill{background:linear-gradient(90deg,#f2a7bd,#e7b84e) !important;}
+.stats-row{gap:8px !important;}
+.stat-item{
+  border:1px solid #f2d5df !important;
+  border-radius:18px !important;
+  background:rgba(255,255,255,.45) !important;
+  box-shadow:0 8px 18px rgba(177,117,145,.08) !important;
+}
+.stat-item:first-child,.stat-item:last-child{border-radius:18px !important;}
+.stat-num{color:#6a4560 !important;}
+.stat-label{color:#b493a4 !important;}
+.calendar-section{padding-bottom:34px !important;}
+.cal-day{
+  background:rgba(255,255,255,.28) !important;
+  color:#b493a4 !important;
+}
+.cal-day.checked{
+  background:linear-gradient(135deg,#f2a7bd,#d4b4f4) !important;
+  color:white !important;
+  box-shadow:0 4px 12px rgba(177,117,145,.18) !important;
+}
+.cal-day.partial{background:rgba(143,207,179,.25) !important;color:#5da686 !important;}
+.cal-day.today-dot{border:1.5px solid #e7b84e !important;color:#b9892f !important;background:rgba(255,246,219,.68) !important;}
+.cal-day.selected{outline:2px solid #e7b84e !important;}
+.cal-cnt{background:#e7b84e !important;}
+.divider{background:#f2d5df !important;}
+.delete-btn{
+  border-color:#f1c2c6 !important;
+  color:#c67880 !important;
+  border-radius:16px !important;
+  background:rgba(255,245,246,.48) !important;
+}
+.form-input{
+  border-color:#edc8d8 !important;
+  border-radius:16px !important;
+  background:rgba(255,255,255,.58) !important;
+  color:#5a3f4f !important;
+}
+.form-input:focus{border-color:#e7b84e !important;box-shadow:0 0 0 4px rgba(231,184,78,.12) !important;}
+.mode-opt,.emoji-opt{
+  border-color:#edc8d8 !important;
+  border-radius:16px !important;
+  background:rgba(255,255,255,.48) !important;
+  color:#8b6f80 !important;
+}
+.mode-opt.selected,.emoji-opt.selected,.emoji-opt:hover{
+  border-color:#e7b84e !important;
+  background:rgba(255,246,219,.66) !important;
+  color:#5a3f4f !important;
+}
+.color-opt{box-shadow:0 5px 12px rgba(177,117,145,.12) !important;}
+.color-opt.selected{border-color:#fff !important;outline:2px solid #e7b84e !important;}
+.save-btn{
+  border-radius:18px !important;
+  background:linear-gradient(135deg,#d4b4f4,#f2a7bd) !important;
+  color:white !important;
+  box-shadow:0 12px 26px rgba(177,117,145,.22) !important;
+}
+.toast{
+  background:#6a4560 !important;
+  color:#fff7fa !important;
+  box-shadow:0 12px 30px rgba(90,63,79,.24) !important;
+}
+@media(max-width:520px){body{padding:18px 12px !important}.book{border-radius:26px !important}.header{padding:28px 24px 20px !important}.header-title{font-size:40px !important}.stats-row{padding:0 24px !important}.calendar-section{padding-left:24px !important;padding-right:24px !important}}
+`;
+function applyCuteTheme(){
+  const frame=document.getElementById('appFrame');
+  const doc=frame&&frame.contentDocument;
+  if(!doc||!doc.head)return;
+  const old=doc.getElementById('cute-theme');
+  if(old)old.remove();
+  const style=doc.createElement('style');
+  style.id='cute-theme';
+  style.textContent=cuteCss;
+  doc.head.appendChild(style);
+}
+document.getElementById('appFrame').addEventListener('load',applyCuteTheme);
+</script>
 </body>
 </html>
