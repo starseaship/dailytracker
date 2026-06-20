@@ -50,8 +50,7 @@
   }
 
   .book::after {
-    content: '';
-    position: absolute; left: 0; top: 0; bottom: 0; width: 32px;
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 32px;
     background: linear-gradient(to right, rgba(0,0,0,0.08), transparent);
     pointer-events: none; z-index: 1;
   }
@@ -114,9 +113,10 @@
   .streak-dot.filled { background: var(--gold); }
 
   .card-stamp {
-    width: 36px; height: 36px; border-radius: 50%; border: 2.5px solid;
+    min-width: 36px; height: 36px; padding: 0 8px; border-radius: 18px; border: 2.5px solid;
     display: flex; align-items: center; justify-content: center;
     font-size: 16px; flex-shrink: 0; transition: all 0.3s;
+    font-family: 'Lora', serif;
   }
   .card-stamp.done { border-color: var(--green); color: var(--green); background: rgba(74,124,89,0.08); }
   .card-stamp.undone { border-color: var(--rule); color: var(--rule); }
@@ -148,8 +148,8 @@
   .detail-emoji { font-size: 52px; display: block; margin-bottom: 10px; }
   .detail-name { font-size: 26px; font-weight: 700; margin-bottom: 4px; }
   .detail-desc { font-size: 13px; color: var(--ink-light); font-family: 'Lora', serif; font-style: italic; }
+  .selected-date-line { margin-top: 10px; font-size: 12px; color: var(--ink-faint); font-family: 'Lora', serif; font-style: italic; }
 
-  /* single mode */
   .checkin-area { display: flex; flex-direction: column; align-items: center; padding: 28px 32px 20px; gap: 12px; }
   .checkin-btn {
     width: 110px; height: 110px; border-radius: 50%; border: 3px solid; background: none; cursor: pointer;
@@ -166,10 +166,10 @@
   .checkin-btn-icon { font-size: 32px; line-height: 1; }
   .checkin-btn-text { font-size: 15px; }
   .checkin-status { font-size: 13px; color: var(--ink-faint); font-family: 'Lora', serif; font-style: italic; }
+  .single-adjust-row { display: flex; align-items: center; gap: 10px; }
+  .single-adjust-note { font-size: 11px; color: var(--ink-faint); font-family: 'Lora', serif; font-style: italic; }
 
-  /* count mode */
   .count-area { display: flex; flex-direction: column; align-items: center; padding: 28px 32px 20px; gap: 18px; }
-
   .count-display { display: flex; align-items: center; gap: 28px; }
 
   .count-ctrl-btn {
@@ -184,15 +184,14 @@
   .count-ctrl-btn:hover { border-color: var(--gold); color: var(--gold); background: rgba(201,148,42,0.06); }
   .count-ctrl-btn:active { transform: scale(0.9); }
   .count-ctrl-btn.minus:hover { border-color: #c05050; color: #c05050; background: rgba(192,80,80,0.06); }
+  .count-ctrl-btn.small { width: 42px; height: 42px; font-size: 22px; }
 
   .count-num-wrap { display: flex; flex-direction: column; align-items: center; min-width: 90px; }
-
   .count-num {
     font-family: 'Ma Shan Zheng', cursive; font-size: 68px; line-height: 1;
     transition: transform 0.15s cubic-bezier(0.34,1.56,0.64,1), color 0.3s;
   }
   .count-num.bump { transform: scale(1.25); }
-
   .count-goal-label { font-size: 11px; color: var(--ink-faint); font-family: 'Lora', serif; font-style: italic; margin-top: 2px; }
 
   .goal-bar-wrap { width: 180px; }
@@ -209,8 +208,16 @@
 
   .calendar-section { padding: 0 32px 32px; }
   .calendar-title { font-size: 10px; letter-spacing: 3px; color: var(--ink-faint); text-transform: uppercase; font-family: 'Lora', serif; margin-bottom: 14px; }
-  .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+  .calendar-title-row { display: flex; align-items: center; justify-content: space-between; }
+  .month-nav {
+    border: 1px solid var(--rule); background: none; color: var(--ink-light);
+    border-radius: 50%; width: 26px; height: 26px; cursor: pointer;
+    font-family: 'Lora', serif; font-size: 15px; line-height: 1;
+  }
+  .month-nav:hover { border-color: var(--gold); color: var(--gold); }
+  .month-nav:disabled { opacity: 0.3; cursor: not-allowed; }
 
+  .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
   .cal-day {
     aspect-ratio: 1; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
@@ -222,8 +229,11 @@
   .cal-day.today-dot { border: 1.5px solid var(--gold); color: var(--gold); }
   .cal-day.today-dot.checked { border-color: var(--green); color: white; }
   .cal-day.today-dot.partial { border-color: var(--gold); }
+  .cal-day.clickable { cursor: pointer; }
+  .cal-day.clickable:hover { transform: scale(1.12); border-color: var(--gold); }
+  .cal-day.selected { outline: 2px solid var(--gold); outline-offset: 2px; }
+  .cal-day.future { opacity: 0.35; cursor: not-allowed; }
 
-  /* little count badge on calendar for count mode */
   .cal-cnt {
     position: absolute; top: -2px; right: -2px;
     background: var(--gold); color: white;
@@ -234,7 +244,6 @@
   }
 
   .divider { height: 1px; background: var(--rule); margin: 0 32px; }
-
   .delete-btn {
     display: flex; align-items: center; justify-content: center; gap: 6px;
     margin: 0 32px 32px; padding: 10px; width: calc(100% - 64px);
@@ -245,7 +254,6 @@
   }
   .delete-btn:hover { background: rgba(192,80,80,0.06); }
 
-  /* add form */
   .add-form { padding: 24px 32px 32px; }
   .form-title { font-family: 'Ma Shan Zheng', cursive; font-size: 22px; margin-bottom: 24px; color: var(--ink); }
   .form-group { margin-bottom: 20px; }
@@ -293,7 +301,6 @@
     cursor: pointer; margin-top: 8px; transition: all 0.15s; letter-spacing: 2px;
   }
   .save-btn:hover { background: var(--ink-light); }
-
   .cancel-link { display: block; text-align: center; margin-top: 14px; font-size: 12px; color: var(--ink-faint); font-family: 'Lora', serif; font-style: italic; cursor: pointer; }
   .cancel-link:hover { color: var(--ink-light); }
 
@@ -329,7 +336,6 @@
     <div class="date-badge" id="date-badge"></div>
   </div>
 
-  <!-- HOME -->
   <div id="view-home" class="active">
     <div class="section-label">我的习惯</div>
     <div class="scroll-area">
@@ -341,25 +347,27 @@
     </button>
   </div>
 
-  <!-- DETAIL -->
   <div id="view-detail">
     <button class="back-btn" onclick="showHome()">← 返回</button>
     <div class="detail-hero">
       <span class="detail-emoji" id="d-emoji"></span>
       <div class="detail-name" id="d-name"></div>
       <div class="detail-desc" id="d-desc"></div>
+      <div class="selected-date-line" id="selected-date-line"></div>
     </div>
 
-    <!-- single -->
     <div class="checkin-area" id="single-area">
       <button class="checkin-btn" id="checkin-btn" onclick="toggleCheckin()">
         <span class="checkin-btn-icon" id="checkin-icon"></span>
         <span class="checkin-btn-text" id="checkin-text"></span>
       </button>
+      <div class="single-adjust-row">
+        <button class="count-ctrl-btn small minus" onclick="adjustSingleCount(-1)">−</button>
+        <span class="single-adjust-note">点大章 +1，点减号修正</span>
+      </div>
       <div class="checkin-status" id="checkin-status"></div>
     </div>
 
-    <!-- count -->
     <div class="count-area hidden" id="count-area">
       <div class="count-display">
         <button class="count-ctrl-btn minus" onclick="adjustCount(-1)">−</button>
@@ -384,7 +392,7 @@
       </div>
       <div class="stat-item">
         <span class="stat-num" id="stat-total">0</span>
-        <span class="stat-label" id="stat-total-label">累计打卡</span>
+        <span class="stat-label" id="stat-total-label">累计次数</span>
       </div>
       <div class="stat-item">
         <span class="stat-num" id="stat-rate">0%</span>
@@ -393,14 +401,17 @@
     </div>
 
     <div class="calendar-section">
-      <div class="calendar-title">本月记录</div>
+      <div class="calendar-title calendar-title-row">
+        <button class="month-nav" onclick="changeCalendarMonth(-1)">‹</button>
+        <span id="calendar-title-text">本月记录</span>
+        <button class="month-nav" id="next-month-btn" onclick="changeCalendarMonth(1)">›</button>
+      </div>
       <div class="calendar-grid" id="calendar-grid"></div>
     </div>
     <div class="divider"></div>
     <button class="delete-btn" onclick="deleteHabit()">✕ 删除这个打卡项目</button>
   </div>
 
-  <!-- ADD -->
   <div id="view-add">
     <div class="add-form">
       <div class="form-title">新建打卡项目</div>
@@ -456,21 +467,77 @@ let currentHabitId = null;
 let selectedEmoji = EMOJIS[0];
 let selectedColor = COLORS[0];
 let selectedMode = 'single';
+let selectedDate = todayStr();
+let calendarMonth = monthStartStr(todayStr());
 
-// migrate old data
 habits = habits.map(h => {
   if (!h.mode) h.mode = 'single';
   if (!h.records) h.records = [];
   if (!h.countRecords) h.countRecords = {};
+
+  h.records.forEach(day => {
+    if (!h.countRecords[day]) h.countRecords[day] = 1;
+  });
+
   return h;
 });
+save();
 
-function todayStr() {
-  const d = new Date();
+function dateToStr(d) {
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
 
+function parseDate(s) {
+  const [y, m, d] = s.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+
+function todayStr() {
+  return dateToStr(new Date());
+}
+
+function monthStartStr(s) {
+  return s.slice(0, 7) + '-01';
+}
+
+function isFutureDate(s) {
+  return parseDate(s) > parseDate(todayStr());
+}
+
+function dateLabel(s) {
+  if (s === todayStr()) return '今天';
+  const d = parseDate(s);
+  return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
+}
+
 function save() { localStorage.setItem('habits', JSON.stringify(habits)); }
+
+function getDayCount(h, day) {
+  const fromCount = (h.countRecords || {})[day] || 0;
+  if (fromCount > 0) return fromCount;
+  return (h.records || []).includes(day) ? 1 : 0;
+}
+
+function setDayCount(h, day, count) {
+  if (!h.countRecords) h.countRecords = {};
+  if (!h.records) h.records = [];
+
+  if (count <= 0) {
+    delete h.countRecords[day];
+    h.records = h.records.filter(d => d !== day);
+  } else {
+    h.countRecords[day] = count;
+    if (!h.records.includes(day)) h.records.push(day);
+    h.records.sort();
+  }
+}
+
+function addDayCount(h, day, delta) {
+  const current = getDayCount(h, day);
+  const next = Math.max(0, current + delta);
+  setDayCount(h, day, next);
+  return next;
+}
 
 function showView(v) {
   ['view-home','view-detail','view-add'].forEach(id => document.getElementById(id).classList.remove('active'));
@@ -491,23 +558,29 @@ function showAdd() {
   showView('view-add');
 }
 
-function showDetail(id) { currentHabitId = id; renderDetail(); showView('view-detail'); }
+function showDetail(id) {
+  currentHabitId = id;
+  selectedDate = todayStr();
+  calendarMonth = monthStartStr(selectedDate);
+  renderDetail();
+  showView('view-detail');
+}
 
-/* HOME */
 function renderHome() {
   const list = document.getElementById('habit-list');
   if (!habits.length) {
     list.innerHTML = `<div class="empty-state"><span class="empty-state-icon">📓</span><div class="empty-state-text">还没有打卡项目<br>点击下方按钮开始记录你的习惯吧</div></div>`;
     return;
   }
+
   list.innerHTML = habits.map(h => {
     const today = todayStr();
     const streak = calcStreak(h);
-    const dots = getLast7(h).map(v => `<div class="streak-dot${v?' filled':''}"></div>`).join('');
+    const dots = getLast7(h).map(v => `<div class="streak-dot${v ? ' filled' : ''}"></div>`).join('');
+    const cnt = getDayCount(h, today);
+    const goal = h.goal || 0;
 
     if (h.mode === 'count') {
-      const cnt = (h.countRecords||{})[today] || 0;
-      const goal = h.goal || 0;
       const color = cnt > 0 ? h.color : 'var(--ink-faint)';
       return `
       <div class="habit-card" onclick="showDetail('${h.id}')">
@@ -515,38 +588,38 @@ function renderHome() {
         <div class="habit-info">
           <div class="habit-name">${h.name}</div>
           <div class="streak-dots">${dots}</div>
-          <div class="habit-sub">${streak>0?`连续 ${streak} 天`:'今天还没记录'}</div>
+          <div class="habit-sub">${streak > 0 ? `连续 ${streak} 天` : '今天还没记录'}</div>
         </div>
         <div class="card-count">
           <div class="card-count-num" style="color:${color}">${cnt}</div>
-          <div class="card-count-unit">${goal?`目标${goal}次`:'次'}</div>
+          <div class="card-count-unit">${goal ? `目标${goal}次` : '次'}</div>
         </div>
-      </div>`;
-    } else {
-      const done = (h.records||[]).includes(today);
-      return `
-      <div class="habit-card" onclick="showDetail('${h.id}')">
-        <div class="habit-icon-wrap" style="background:${h.color}18;border-color:${h.color}55">${h.emoji}</div>
-        <div class="habit-info">
-          <div class="habit-name">${h.name}</div>
-          <div class="streak-dots">${dots}</div>
-          <div class="habit-sub">${streak>0?`连续 ${streak} 天`:'今天还没打卡'}</div>
-        </div>
-        <div class="card-stamp ${done?'done':'undone'}">${done?'✓':'○'}</div>
       </div>`;
     }
+
+    const done = cnt > 0;
+    return `
+    <div class="habit-card" onclick="showDetail('${h.id}')">
+      <div class="habit-icon-wrap" style="background:${h.color}18;border-color:${h.color}55">${h.emoji}</div>
+      <div class="habit-info">
+        <div class="habit-name">${h.name}</div>
+        <div class="streak-dots">${dots}</div>
+        <div class="habit-sub">${streak > 0 ? `连续 ${streak} 天` : '今天还没打卡'}</div>
+      </div>
+      <div class="card-stamp ${done ? 'done' : 'undone'}">${done ? cnt : '○'}</div>
+    </div>`;
   }).join('');
 }
 
-/* DETAIL */
 function renderDetail() {
   const h = habits.find(x => x.id === currentHabitId);
   if (!h) return;
-  const today = todayStr();
 
+  const day = selectedDate || todayStr();
   document.getElementById('d-emoji').textContent = h.emoji;
   document.getElementById('d-name').textContent = h.name;
   document.getElementById('d-desc').textContent = h.desc || '每天坚持，成就更好的自己';
+  document.getElementById('selected-date-line').textContent = `当前编辑：${dateLabel(day)}`;
 
   const sa = document.getElementById('single-area');
   const ca = document.getElementById('count-area');
@@ -554,30 +627,31 @@ function renderDetail() {
   if (h.mode === 'count') {
     sa.classList.add('hidden'); ca.classList.remove('hidden');
     renderCountArea(h);
-    document.getElementById('stat-total-label').textContent = '累计次数';
-    document.getElementById('stat-total').textContent = calcTotalCount(h);
   } else {
     ca.classList.add('hidden'); sa.classList.remove('hidden');
-    const done = (h.records||[]).includes(today);
+    const cnt = getDayCount(h, day);
+    const done = cnt > 0;
     const btn = document.getElementById('checkin-btn');
-    document.getElementById('checkin-icon').textContent = done ? '✓' : h.emoji;
-    document.getElementById('checkin-text').textContent = done ? '已完成' : '打 卡';
+    document.getElementById('checkin-icon').textContent = done ? cnt : h.emoji;
+    document.getElementById('checkin-text').textContent = done ? '再记一次' : '打 卡';
     btn.className = 'checkin-btn ' + (done ? 'done' : 'undone');
     btn.style.borderColor = done ? '#4a7c59' : h.color;
     btn.style.color = done ? '#4a7c59' : h.color;
-    document.getElementById('checkin-status').textContent = done ? '今天已打卡 ✓' : '点击完成今日打卡';
-    document.getElementById('stat-total-label').textContent = '累计打卡';
-    document.getElementById('stat-total').textContent = (h.records||[]).length;
+    document.getElementById('checkin-status').textContent = done
+      ? `${dateLabel(day)}已记录 ${cnt} 次`
+      : `点击记录${dateLabel(day)}`;
   }
 
-  document.getElementById('stat-streak').textContent = calcStreak(h);
+  document.getElementById('stat-total-label').textContent = '累计次数';
+  document.getElementById('stat-total').textContent = calcTotalCount(h);
+  document.getElementById('stat-streak').textContent = calcStreak(h, day);
   document.getElementById('stat-rate').textContent = calcMonthRate(h) + '%';
   renderCalendar(h);
 }
 
 function renderCountArea(h) {
-  const today = todayStr();
-  const cnt = (h.countRecords||{})[today] || 0;
+  const day = selectedDate || todayStr();
+  const cnt = getDayCount(h, day);
   const goal = h.goal || 0;
 
   const numEl = document.getElementById('count-num');
@@ -592,7 +666,7 @@ function renderCountArea(h) {
     const fill = document.getElementById('goal-bar-fill');
     fill.style.width = pct + '%';
     fill.style.background = pct >= 100 ? '#4a7c59' : h.color;
-    document.getElementById('goal-bar-text').textContent = pct >= 100 ? '🎉 已达成今日目标！' : `还差 ${goal - cnt} 次`;
+    document.getElementById('goal-bar-text').textContent = pct >= 100 ? '🎉 已达成当天目标！' : `还差 ${goal - cnt} 次`;
   } else {
     barWrap.classList.add('hidden');
   }
@@ -601,86 +675,147 @@ function renderCountArea(h) {
 function adjustCount(delta) {
   const h = habits.find(x => x.id === currentHabitId);
   if (!h || h.mode !== 'count') return;
-  const today = todayStr();
-  if (!h.countRecords) h.countRecords = {};
-  const cur = h.countRecords[today] || 0;
-  const next = Math.max(0, cur + delta);
-  if (next === 0) delete h.countRecords[today];
-  else h.countRecords[today] = next;
+
+  const day = selectedDate || todayStr();
+  if (isFutureDate(day)) {
+    showToast('不能记录未来日期');
+    return;
+  }
+
+  const next = addDayCount(h, day, delta);
   save();
 
   if (delta > 0) {
     const goal = h.goal || 0;
-    if (goal && next === goal) showToast(h.emoji + ' 达成今日目标！🎉');
-    else showToast(`+1  今日已记录 ${next} 次`);
-    const numEl = document.getElementById('count-num');
-    numEl.classList.remove('bump');
-    void numEl.offsetWidth;
-    numEl.classList.add('bump');
-    setTimeout(() => numEl.classList.remove('bump'), 200);
+    if (goal && next === goal) showToast(h.emoji + ' 达成当天目标！🎉');
+    else showToast(`+1  ${dateLabel(day)}已记录 ${next} 次`);
+    bumpCountNumber();
   } else {
-    showToast(`已减为 ${next} 次`);
+    showToast(`${dateLabel(day)}已调整为 ${next} 次`);
   }
 
   renderCountArea(h);
   document.getElementById('stat-total').textContent = calcTotalCount(h);
+  document.getElementById('stat-rate').textContent = calcMonthRate(h) + '%';
   renderCalendar(h);
   renderHome();
 }
 
+function bumpCountNumber() {
+  const numEl = document.getElementById('count-num');
+  if (!numEl) return;
+  numEl.classList.remove('bump');
+  void numEl.offsetWidth;
+  numEl.classList.add('bump');
+  setTimeout(() => numEl.classList.remove('bump'), 200);
+}
+
 function renderCalendar(h) {
   const grid = document.getElementById('calendar-grid');
-  const now = new Date();
-  const year = now.getFullYear(), month = now.getMonth();
+  const base = parseDate(calendarMonth || monthStartStr(todayStr()));
+  const year = base.getFullYear(), month = base.getMonth();
   const today = todayStr();
-  const days = new Date(year, month+1, 0).getDate();
+  const days = new Date(year, month + 1, 0).getDate();
   const firstDay = new Date(year, month, 1).getDay();
   const goal = h.goal || 0;
+
+  document.getElementById('calendar-title-text').textContent = `${year}年${month + 1}月记录`;
+  const nextBtn = document.getElementById('next-month-btn');
+  const currentMonth = today.slice(0, 7);
+  const viewingMonth = `${year}-${String(month + 1).padStart(2, '0')}`;
+  nextBtn.disabled = viewingMonth >= currentMonth;
 
   let html = '';
   ['日','一','二','三','四','五','六'].forEach(d => {
     html += `<div class="cal-day" style="font-size:9px;color:var(--ink-faint)">${d}</div>`;
   });
-  for (let i=0; i<firstDay; i++) html += '<div></div>';
+  for (let i = 0; i < firstDay; i++) html += '<div></div>';
 
-  for (let d=1; d<=days; d++) {
-    const ds = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+  for (let d = 1; d <= days; d++) {
+    const ds = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
     const isToday = ds === today;
+    const isSelected = ds === selectedDate;
+    const future = isFutureDate(ds);
+    const cnt = getDayCount(h, ds);
     let cls = 'cal-day';
     let badge = '';
 
-    if (h.mode === 'count') {
-      const cnt = (h.countRecords||{})[ds] || 0;
-      if (cnt > 0) {
-        cls += goal ? (cnt >= goal ? ' checked' : ' partial') : ' checked';
-        if (cnt > 1) badge = `<span class="cal-cnt">${cnt}</span>`;
-      }
-    } else {
-      if ((h.records||[]).includes(ds)) cls += ' checked';
+    if (!future) cls += ' clickable';
+    if (future) cls += ' future';
+    if (isSelected) cls += ' selected';
+
+    if (cnt > 0) {
+      if (h.mode === 'count' && goal) cls += cnt >= goal ? ' checked' : ' partial';
+      else cls += ' checked';
+      if (cnt > 1) badge = `<span class="cal-cnt">${cnt}</span>`;
     }
+
     if (isToday) cls += ' today-dot';
-    html += `<div class="${cls}">${d}${badge}</div>`;
+    const click = future ? '' : `onclick="selectCalendarDate('${ds}')"`;
+    html += `<div class="${cls}" ${click}>${d}${badge}</div>`;
   }
+
   grid.innerHTML = html;
 }
 
-/* SINGLE TOGGLE */
+function selectCalendarDate(ds) {
+  if (isFutureDate(ds)) {
+    showToast('不能选择未来日期');
+    return;
+  }
+  selectedDate = ds;
+  calendarMonth = monthStartStr(ds);
+  renderDetail();
+}
+
+function changeCalendarMonth(delta) {
+  const base = parseDate(calendarMonth || monthStartStr(todayStr()));
+  base.setMonth(base.getMonth() + delta);
+
+  const target = dateToStr(base);
+  const targetMonth = target.slice(0, 7);
+  const currentMonth = todayStr().slice(0, 7);
+
+  if (targetMonth > currentMonth) calendarMonth = monthStartStr(todayStr());
+  else calendarMonth = monthStartStr(target);
+
+  renderDetail();
+}
+
 function toggleCheckin() {
   const h = habits.find(x => x.id === currentHabitId);
   if (!h) return;
-  const today = todayStr();
-  if (!h.records) h.records = [];
-  if (h.records.includes(today)) {
-    h.records = h.records.filter(d => d !== today);
-    showToast('已取消今日打卡');
-  } else {
-    h.records.push(today);
-    showToast(h.emoji + ' 打卡成功！继续加油～');
+
+  const day = selectedDate || todayStr();
+  if (isFutureDate(day)) {
+    showToast('不能记录未来日期');
+    return;
   }
-  save(); renderDetail(); renderHome();
+
+  const next = addDayCount(h, day, 1);
+  save();
+  showToast(`${h.emoji} ${dateLabel(day)}已记录 ${next} 次`);
+  renderDetail();
+  renderHome();
 }
 
-/* SAVE */
+function adjustSingleCount(delta) {
+  const h = habits.find(x => x.id === currentHabitId);
+  if (!h || h.mode === 'count') return;
+
+  const day = selectedDate || todayStr();
+  if (isFutureDate(day)) {
+    showToast('不能记录未来日期');
+    return;
+  }
+
+  const next = addDayCount(h, day, delta);
+  save();
+  showToast(`${dateLabel(day)}已调整为 ${next} 次`);
+  renderDetail();
+  renderHome();
+}
+
 function saveHabit() {
   const name = document.getElementById('input-name').value.trim();
   if (!name) { showToast('请输入名称 ✏️'); return; }
@@ -710,7 +845,6 @@ function deleteHabit() {
   save(); showToast('已删除'); showHome();
 }
 
-/* FORM */
 function selectMode(m) {
   selectedMode = m;
   document.getElementById('mode-single').classList.toggle('selected', m === 'single');
@@ -720,51 +854,58 @@ function selectMode(m) {
 
 function renderEmojiGrid() {
   document.getElementById('emoji-grid').innerHTML = EMOJIS.map(e =>
-    `<button class="emoji-opt${e===selectedEmoji?' selected':''}" onclick="selectEmoji('${e}')">${e}</button>`
+    `<button class="emoji-opt${e === selectedEmoji ? ' selected' : ''}" onclick="selectEmoji('${e}')">${e}</button>`
   ).join('');
 }
 function renderColorGrid() {
   document.getElementById('color-grid').innerHTML = COLORS.map(c =>
-    `<div class="color-opt${c===selectedColor?' selected':''}" style="background:${c}" onclick="selectColor('${c}')"></div>`
+    `<div class="color-opt${c === selectedColor ? ' selected' : ''}" style="background:${c}" onclick="selectColor('${c}')"></div>`
   ).join('');
 }
 function selectEmoji(e) { selectedEmoji = e; renderEmojiGrid(); }
 function selectColor(c) { selectedColor = c; renderColorGrid(); }
 
-/* STATS */
-function calcStreak(h) {
-  let streak = 0, d = new Date();
+function calcStreak(h, fromDate = todayStr()) {
+  let streak = 0;
+  let d = parseDate(fromDate);
+
   while (true) {
-    const s = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-    const hit = h.mode === 'count' ? ((h.countRecords||{})[s]||0) > 0 : (h.records||[]).includes(s);
-    if (hit) { streak++; d.setDate(d.getDate()-1); } else break;
+    const s = dateToStr(d);
+    const hit = getDayCount(h, s) > 0;
+    if (hit) { streak++; d.setDate(d.getDate() - 1); }
+    else break;
   }
   return streak;
 }
 
 function getLast7(h) {
-  return Array.from({length:7}, (_,i) => {
-    const d = new Date(); d.setDate(d.getDate()-(6-i));
-    const s = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-    return h.mode === 'count' ? ((h.countRecords||{})[s]||0)>0 : (h.records||[]).includes(s);
+  return Array.from({length: 7}, (_, i) => {
+    const d = new Date(); d.setDate(d.getDate() - (6 - i));
+    return getDayCount(h, dateToStr(d)) > 0;
   });
 }
 
 function calcMonthRate(h) {
-  const now = new Date();
-  const year = now.getFullYear(), month = now.getMonth(), today = now.getDate();
+  const base = parseDate(calendarMonth || monthStartStr(todayStr()));
+  const year = base.getFullYear(), month = base.getMonth();
+  const today = parseDate(todayStr());
+  const isCurrentMonth = year === today.getFullYear() && month === today.getMonth();
+  const endDay = isCurrentMonth ? today.getDate() : new Date(year, month + 1, 0).getDate();
   const goal = h.goal || 1;
   let count = 0;
-  for (let d=1; d<=today; d++) {
-    const s = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const hit = h.mode === 'count' ? ((h.countRecords||{})[s]||0) >= goal : (h.records||[]).includes(s);
+
+  for (let d = 1; d <= endDay; d++) {
+    const s = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    const dayCount = getDayCount(h, s);
+    const hit = h.mode === 'count' ? dayCount >= goal : dayCount > 0;
     if (hit) count++;
   }
-  return Math.round(count/today*100);
+
+  return Math.round(count / endDay * 100);
 }
 
 function calcTotalCount(h) {
-  return Object.values(h.countRecords||{}).reduce((a,b)=>a+b,0);
+  return Object.values(h.countRecords || {}).reduce((a, b) => a + Number(b || 0), 0);
 }
 
 function showToast(msg) {
@@ -774,7 +915,6 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2200);
 }
 
-/* INIT */
 const _n = new Date();
 const _mo = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
 const _dy = ['日','一','二','三','四','五','六'];
